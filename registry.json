@@ -1,13 +1,14 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "dither",
-  "homepage": "https://dither.leomosley.com",
+  "homepage": "https://dither.mosly.dev",
   "items": [
     {
       "name": "dither",
       "type": "registry:component",
       "title": "Dither",
-      "description": "A component that applies dithering effects to images.",
+      "description": "Pass any image and render it with WebGL Bayer matrix ordered dithering.",
+      "dependencies": [],
       "files": [
         {
           "path": "registry/dither/dither.tsx",
