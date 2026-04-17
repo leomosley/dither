@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "dither",
+  "homepage": "https://dither.leomosley.com",
+  "items": [
+    {
+      "name": "dither",
+      "type": "registry:component",
+      "title": "Dither",
+      "description": "A component that applies dithering effects to images.",
+      "files": [
+        {
+          "path": "registry/dither/dither.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}
