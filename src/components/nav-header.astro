@@ -1,0 +1,32 @@
+---
+const currentPath = Astro.url.pathname;
+---
+
+<nav
+  class="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 bg-white/80 backdrop-blur-sm border-b border-black/5"
+>
+  <a href="https://mosly.dev" class="flex items-center">
+    <img
+      src="/icon.png"
+      alt="mosly.dev"
+      class="w-6 h-6 object-contain drop-shadow-sm"
+    />
+  </a>
+  <div class="flex items-center gap-6">
+    <a
+      href="/docs"
+      class={`text-sm transition-colors ${currentPath.startsWith("/docs") && currentPath === "/docs" ? "text-black font-medium" : "text-black/40 hover:text-black"}`}
+      >Docs</a
+    >
+    <a
+      href="/docs/playground"
+      class={`text-sm transition-colors ${currentPath === "/docs/playground" ? "text-black font-medium" : "text-black/40 hover:text-black"}`}
+      >Playground</a
+    >
+    <a
+      href="https://github.com/leomosley/dither"
+      class="text-sm text-black/30 hover:text-black/60 transition-colors inline-flex items-center gap-0.5"
+      >GitHub<svg width="10" height="10" viewBox="0 0 10 10" fill="none" class="mb-1.5"><path d="M2 8L8 2M8 2H4M8 2V6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></a
+    >
+  </div>
+</nav>

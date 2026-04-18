@@ -1,0 +1,21 @@
+---
+import Layout from "../../layouts/layout.astro";
+import { DocsPlayground } from "../../components/docs-playground";
+---
+
+<Layout title="dither — playground" description="tweak every prop of the dither component live and see the result instantly.">
+  <div class="min-h-screen bg-white">
+    <div class="max-w-7xl mx-auto px-6 pt-16 pb-24">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight text-black">
+            playground
+          </h1>
+        </div>
+        <p class="text-sm text-black/35 mb-1">hover the canvas to interact.</p>
+      </div>
+
+      <DocsPlayground client:only="react" />
+    </div>
+  </div>
+</Layout>

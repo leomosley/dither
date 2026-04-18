@@ -40,7 +40,9 @@ const PRESETS: Record<ColorFilterPreset, ColorFilterFn> = {
   ],
 };
 
-function drawPixel(
+// Adds the pixel shape to the current path without starting/closing the path.
+// Callers batch same-color pixels into one beginPath/fill call.
+function addPixelToPath(
   ctx: CanvasRenderingContext2D,
   x: number,
   y: number,
@@ -48,7 +50,6 @@ function drawPixel(
   shape: PixelShape,
 ) {
   const half = size / 2;
-  ctx.beginPath();
   if (shape === "circle") {
     ctx.arc(x, y, half, 0, Math.PI * 2);
   } else if (shape === "square") {
@@ -61,7 +62,6 @@ function drawPixel(
     ctx.lineTo(x - half, y + h / 3);
     ctx.closePath();
   }
-  ctx.fill();
 }
 
 interface Pixel {
@@ -71,9 +71,7 @@ interface Pixel {
   homeY: number;
   vx: number;
   vy: number;
-  r: number;
-  g: number;
-  b: number;
+  color: string; // pre-computed "rgb(r,g,b)" — avoids per-frame template-literal allocation
   size: number;
 }
 
@@ -161,13 +159,16 @@ function buildPixels(
     for (let x = step / 2; x < canvasW; x += step) {
       if (!deadSet.has(row * totalCols + col)) {
         const rgb = samplePixel(data, x, y, canvasW, canvasH, filterFn, transparentColor, transparentThreshold);
-        if (rgb) pixels.push({ x, y, homeX: x, homeY: y, vx: 0, vy: 0, r: rgb[0], g: rgb[1], b: rgb[2], size: pixelSize });
+        if (rgb) pixels.push({ x, y, homeX: x, homeY: y, vx: 0, vy: 0, color: `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`, size: pixelSize });
       }
       col++;
     }
     row++;
   }
 
+  // Sort once by color so the draw loop can batch all same-color pixels into a
+  // single beginPath/fill call — colors never change after build.
+  pixels.sort((a, b) => (a.color < b.color ? -1 : a.color > b.color ? 1 : 0));
   return pixels;
 }
 
@@ -288,7 +289,11 @@ export function Dither({
       const mx = mouse.current.x;
       const my = mouse.current.y;
 
-      for (const p of pixels.current) {
+      const ps    = pixels.current;
+      const shape = shapeRef.current;
+
+      // Physics pass — update positions first, no drawing.
+      for (const p of ps) {
         const dx = p.x - mx;
         const dy = p.y - my;
         const d2 = dx * dx + dy * dy;
@@ -311,10 +316,23 @@ export function Dither({
         // This prevents oscillation and the Moiré wave patterns it causes.
         p.x += (p.homeX - p.x) * spring;
         p.y += (p.homeY - p.y) * spring;
-
-        ctx.fillStyle = `rgb(${p.r},${p.g},${p.b})`;
-        drawPixel(ctx, p.x, p.y, p.size, shapeRef.current);
       }
+
+      // Draw pass — pixels are pre-sorted by color so same-color pixels are
+      // contiguous. Batch all of them into one beginPath/fill call, reducing
+      // draw calls from O(N) to O(unique colors).
+      let currentColor = "";
+      for (let i = 0; i < ps.length; i++) {
+        const p = ps[i];
+        if (p.color !== currentColor) {
+          if (currentColor !== "") ctx.fill();
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          currentColor = p.color;
+        }
+        addPixelToPath(ctx, p.x, p.y, p.size, shape);
+      }
+      if (currentColor !== "") ctx.fill();
 
       rafRef.current = requestAnimationFrame(tick);
     };
