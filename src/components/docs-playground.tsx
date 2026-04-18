@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import { Dither } from "../../registry/dither/dither";
 import type { PixelShape, ColorFilter } from "../../registry/dither/dither";
-import { Slider } from "./ui/slider";
+import { Slider } from "@/components/ui/slider";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
