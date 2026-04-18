@@ -19,7 +19,6 @@ export function DitherHero() {
             gap={0}
             noise={0.15}
             pixelShape="square"
-            colorFilter="invert"
             transparentColor="#ffffff"
             cursorRadius={3}
           />
