@@ -318,21 +318,19 @@ export function Dither({
         p.y += (p.homeY - p.y) * spring;
       }
 
-      // Draw pass — pixels are pre-sorted by color so same-color pixels are
-      // contiguous. Batch all of them into one beginPath/fill call, reducing
-      // draw calls from O(N) to O(unique colors).
+      // Draw pass — pixels are pre-sorted by color so fillStyle is only set
+      // when the color changes, eliminating redundant CSS parses each frame.
       let currentColor = "";
       for (let i = 0; i < ps.length; i++) {
         const p = ps[i];
         if (p.color !== currentColor) {
-          if (currentColor !== "") ctx.fill();
           ctx.fillStyle = p.color;
-          ctx.beginPath();
           currentColor = p.color;
         }
+        ctx.beginPath();
         addPixelToPath(ctx, p.x, p.y, p.size, shape);
+        ctx.fill();
       }
-      if (currentColor !== "") ctx.fill();
 
       rafRef.current = requestAnimationFrame(tick);
     };
